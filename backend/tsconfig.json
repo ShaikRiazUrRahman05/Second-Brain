@@ -1,0 +1,83 @@
+// {
+//   // Visit https://aka.ms/tsconfig to read more about this file
+//   "compilerOptions": {
+//     // File Layout
+//     "rootDir": "./src",
+//     "outDir": "./dist",
+
+//     // Environment Settings
+//     // See also https://aka.ms/tsconfig/module
+//     "module": "nodenext",
+//     "target": "esnext",
+//     "types": [],
+//     // For nodejs:
+//     // "lib": ["esnext"],
+//     // "types": ["node"],
+//     // and npm install -D @types/node
+
+//     // Other Outputs
+//     "sourceMap": true,
+//     "declaration": true,
+//     "declarationMap": true,
+
+//     // Stricter Typechecking Options
+//     "noUncheckedIndexedAccess": true,
+//     "exactOptionalPropertyTypes": true,
+
+//     // Style Options
+//     // "noImplicitReturns": true,
+//     // "noImplicitOverride": true,
+//     // "noUnusedLocals": true,
+//     // "noUnusedParameters": true,
+//     // "noFallthroughCasesInSwitch": true,
+//     // "noPropertyAccessFromIndexSignature": true,
+
+//     // Recommended Options
+//     "strict": true,
+//     "jsx": "react-jsx",
+//     "verbatimModuleSyntax": true,
+//     "isolatedModules": true,
+//     "noUncheckedSideEffectImports": true,
+//     "moduleDetection": "force",
+//     "skipLibCheck": true
+//   }
+// }
+
+{
+  "compilerOptions": {
+    /* File Layout */
+    "rootDir": "./src" /* Where your backend .ts files live */,
+    "outDir": "./dist" /* Where the compiled .js files will go */,
+
+    /* Environment Settings */
+    "module": "nodenext" /* Modern Node.js module resolution */,
+    "target": "esnext" /* Support for latest JavaScript features */,
+
+    /* Output for Debugging & Libraries */
+    "sourceMap": true /* Helps you debug TS code in the browser/Node */,
+    "declaration": true /* Generates .d.ts files for type safety */,
+    "declarationMap": true /* Maps those declarations back to source */,
+
+    /* Stricter Typechecking (Great for Resume/Interviews) */
+    "strict": true /* Enables all strict type-checking options */,
+    "noUncheckedIndexedAccess": true /* Ensures you check if array elements exist */,
+    "exactOptionalPropertyTypes": true /* Prevents setting optional props to 'undefined' */,
+
+    /* Recommended Build Options */
+    "jsx": "react-jsx" /* Support for JSX (even if mostly for backend) */,
+    "verbatimModuleSyntax": true /* Ensures imports are handled predictably */,
+    "isolatedModules": true /* Ensures each file can be safely transpiled */,
+    "noUncheckedSideEffectImports": true /* Flags imports that might have side effects */,
+    "moduleDetection": "force" /* Treats all files as modules */,
+    "skipLibCheck": true /* Speeds up build by skipping type check of node_modules */
+  },
+
+  /* CRITICAL: This section tells the Backend compiler 
+     to IGNORE your React frontend and build folders.
+  */
+  "exclude": [
+    "node_modules" /* Don't compile dependencies */,
+    "dist" /* Don't compile the output folder */,
+    "frontend" /* Don't compile the React project inside here */
+  ]
+}
