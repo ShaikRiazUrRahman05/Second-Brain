@@ -68,20 +68,19 @@ cd Second-Brain
 
 
 ### 2. Configure Backend
+
 ```bash
 cd backend
 npm install
 
-```
-
-# Create a .env file and add the following:
+# Create a .env file in the backend folder and add:
 # MONGO_URL=your_mongodb_uri
 # JWT_PASSWORD=your_secret
 # GEMINI_API_KEY=your_google_ai_key
 
 npm run dev
 
-### 2. Configure Frontend
+### 3. Configure Frontend
 
 ```bash
 cd frontend
