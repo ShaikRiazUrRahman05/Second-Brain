@@ -1,0 +1,12 @@
+# Dependencies
+**/node_modules/
+
+# Build files
+**/dist/
+**/.tsbuildinfo
+
+# Environment Secrets (CRITICAL)
+**/.env
+
+# System files
+.DS_Store

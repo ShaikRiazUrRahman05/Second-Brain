@@ -1,0 +1,89 @@
+// import { useRef } from "react";
+// import { Button } from "../components/Button";
+// import { Input } from "../components/Input";
+// import { BACKEND_URL } from "../config";
+// import axios from "axios";
+
+//  export async function Signup() {
+//   const usernameRef = useRef<HTMLInputElement>(null);
+//   const passwordRef = useRef<HTMLInputElement>(null);
+//   //send this(username and pass) to backend
+//  axios.post(`${BACKEND_URL}`,{
+//     data:{
+//      username,
+//      password
+//     }
+//   })
+
+//   alert("You Have Signed Up!")
+// }
+
+//   function signup() {
+//     //use Refs
+//     const username = usernameRef.current?.value;
+//     const password = passwordRef.current?.value;
+//   }
+//   return (
+//     <div className="h-screen w-screen bg-gray-200 flex justify-center items-center">
+//       <div className="bg-white rounded-xl border min-w-48 p-8 ">
+//         <Input ref={usernameRef} placeholder="Username" />
+//         <Input ref={passwordRef} placeholder="Password" />
+//         <div className="flex justify-center pt-4">
+//           <Button
+//             onClick={signup}
+//             loading={false}
+//             variant="primary"
+//             text="SignUp"
+//             fullWidth={true}
+//           />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+import { useRef } from "react";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
+import { BACKEND_URL } from "../config";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+export function Signup() {
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const signup = async () => {
+    // use Refs
+    const username = usernameRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    // send this(username and pass) to backend
+    await axios.post(`${BACKEND_URL}/signup`, {
+      username,
+      password,
+    });
+
+    navigate("/signin");
+    alert("You Have Signed Up!");
+  };
+
+  return (
+    <div className="h-screen w-screen bg-gray-200 flex justify-center items-center">
+      <div className="bg-white rounded-xl border min-w-48 p-8 ">
+        <Input ref={usernameRef} placeholder="Username" />
+        <Input ref={passwordRef} placeholder="Password" />
+        <div className="flex justify-center pt-4">
+          <Button
+            onClick={signup}
+            loading={false}
+            variant="primary"
+            text="SignUp"
+            fullWidth={true}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
