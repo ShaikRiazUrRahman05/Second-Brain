@@ -74,10 +74,10 @@ npm install
 
 ```
 
-# Create a .env file and add the following:
-# MONGO_URL=your_mongodb_uri
-# JWT_PASSWORD=your_secret
-# GEMINI_API_KEY=your_google_ai_key
+Create a .env file and add the following:
+MONGO_URL=your_mongodb_uri
+ JWT_PASSWORD=your_secret
+GEMINI_API_KEY=your_google_ai_key
 
 npm run dev
 
