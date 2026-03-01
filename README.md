@@ -1,4 +1,4 @@
-#Second-Brain:AI-Powered Platform 🧠
+# Second-Brain:AI-Powered Platform 🧠
 
 **Second-Brain** is a high-performance MERN stack application designed to solve content overload. It allows users to curate, organize, and instantly summarize digital content from YouTube and Twitter using Generative AI.
 
