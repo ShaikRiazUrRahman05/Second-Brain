@@ -66,9 +66,7 @@ git clone https://github.com/ShaikRiazUrRahman05/Second-Brain.git
 cd Second-Brain
 ```
 
-
 ### 2. Configure Backend
-
 ```bash
 cd backend
 npm install
@@ -79,8 +77,6 @@ npm install
 # GEMINI_API_KEY=your_google_ai_key
 
 npm run dev
-
-
 
 
 ### 3. Configure Frontend
