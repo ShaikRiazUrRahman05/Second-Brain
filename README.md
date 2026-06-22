@@ -34,7 +34,7 @@ The backend acts as a proxy to the Gemini API, ensuring API Keys remain secure. 
 
 
 ### 2. Search Optimization
-Instead of hitting the database for every keystroke, Aurix utilizes **State-Based Filtering**. 
+Instead of hitting the database for every keystroke, this app utilizes **State-Based Filtering**. 
 - **Time Complexity**: $O(N)$ client-side lookup.
 - **User Experience**: Zero-latency UI updates as the user types.
 
