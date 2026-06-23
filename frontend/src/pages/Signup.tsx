@@ -93,7 +93,7 @@ import { Input } from "../components/Input";
 import { BACKEND_URL } from "../config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaYoutube, FaXTwitter, FaLink, FaPen } from "react-icons/fa6";
+import { FaYoutube, FaXTwitter, FaLink } from "react-icons/fa6";
 
 export function Signup() {
   const usernameRef = useRef<HTMLInputElement>(null);
