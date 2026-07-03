@@ -286,7 +286,7 @@ app.post("/api/v1/signup", async (req, res) => {
       message: "User Signedup successfully",
     });
   } catch (e) {
-    res.status(411).json({
+    res.status(409).json({
       message: "User already exists",
     });
   }
