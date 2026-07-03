@@ -45,17 +45,19 @@
 //     </div>
 //   );
 // }
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { BACKEND_URL } from "../config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaYoutube, FaXTwitter, FaLink, FaPen } from "react-icons/fa6";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export function Signin() {
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -219,7 +221,21 @@ export function Signin() {
         <div className="space-y-4">
           <Input ref={usernameRef} placeholder="Username" />
 
-          <Input ref={passwordRef} placeholder="Password" />
+          <div className="relative">
+            <Input
+              ref={passwordRef}
+              placeholder="Password"
+              type={showPassword ? "text" : "password"}
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
         </div>
 
         <div className="mt-6">

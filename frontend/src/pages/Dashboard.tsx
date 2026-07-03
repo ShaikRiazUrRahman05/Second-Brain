@@ -78,6 +78,7 @@
 // import { useEffect, useState } from "react";
 import axios from "axios";
 import { Card } from "../components/Card";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "../components/Sidebar";
 import { Button } from "../components/Button";
 import { PlusIcon } from "../components/ui/icons/PlusIcon";
@@ -90,6 +91,7 @@ export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [contents, setContents] = useState([]);
   const [searchQuery, setSearchQuery] = useState(""); // 1. State for Smart Search
+  const navigate = useNavigate();
 
   const fetchContent = async () => {
     const response = await axios.get(`${BACKEND_URL}/content`, {
@@ -107,6 +109,11 @@ export function Dashboard() {
     item.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  function logout() {
+    localStorage.removeItem("token");
+    navigate("/signin");
+  }
+
   async function handleShare() {
     const response = await axios.post(
       `${BACKEND_URL}/brain/share`,
@@ -115,6 +122,7 @@ export function Dashboard() {
         headers: { Authorization: localStorage.getItem("token") },
       },
     );
+
     const shareUrl = `http://localhost:5174/share/${response.data.hash}`;
     navigator.clipboard.writeText(shareUrl);
     alert("Link copied: " + shareUrl);
@@ -129,6 +137,26 @@ export function Dashboard() {
       />
 
       <div className="p-4 ml-72 w-full">
+        <div className="flex justify-between items-center bg-white rounded-xl shadow px-6 py-4 mb-6">
+          <h2 className="text-2xl font-bold text-purple-700">
+            🧠 Second Brain
+          </h2>
+
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <span className="text-gray-700 font-medium">Online</span>
+            </div>
+
+            <button
+              onClick={logout}
+              className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">
             Your Second Brain
