@@ -76,6 +76,45 @@
 
 // export const LinkModel = model("Links", LinkSchema);
 
+// import mongoose, { model, Schema } from "mongoose";
+// import dotenv from "dotenv";
+
+// dotenv.config();
+
+// const MONGO_URL = process.env.MONGO_URL;
+
+// mongoose
+//   .connect(MONGO_URL || "")
+//   .then(() => console.log("✅ MongoDB Connected"))
+//   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+
+// const UserSchema = new Schema({
+//   username: { type: String, unique: true, required: true },
+//   password: { type: String, required: true },
+// });
+
+// export const UserModel = model("users", UserSchema);
+
+// const ContentSchema = new Schema({
+//   title: String,
+//   link: String,
+//   type: { type: String, enum: ["youtube", "twitter"] },
+//   userId: { type: mongoose.Types.ObjectId, ref: "users", required: true },
+// });
+
+// export const ContentModel = model("Content", ContentSchema);
+
+// const LinkSchema = new Schema({
+//   hash: { type: String, required: true },
+//   userId: {
+//     type: mongoose.Types.ObjectId,
+//     ref: "users",
+//     required: true,
+//     unique: true,
+//   },
+// });
+
+// export const LinkModel = model("Links", LinkSchema);
 import mongoose, { model, Schema } from "mongoose";
 import dotenv from "dotenv";
 
@@ -90,6 +129,7 @@ mongoose
 
 const UserSchema = new Schema({
   username: { type: String, unique: true, required: true },
+  email: { type: String, unique: true, required: true }, // ← NEW
   password: { type: String, required: true },
 });
 

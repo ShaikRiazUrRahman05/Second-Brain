@@ -117,19 +117,196 @@
 //     </div>
 //   );
 // }import { useState } from "react";
-import { useState } from "react";
+
+// import { useState } from "react";
+// import axios from "axios";
+// import { BACKEND_URL } from "../config";
+// import { TrashIcon } from "./ui/icons/TrashIcon";
+
+// // 1. Updated Interface with isPublic prop
+// interface CardProps {
+//   title: string;
+//   link: string;
+//   type: "twitter" | "youtube";
+//   contentId?: string; // Optional because public view doesn't need it
+//   refresh?: () => void; // Optional because public view doesn't need it
+//   isPublic?: boolean; // New prop to toggle UI elements
+// }
+
+// export function Card({
+//   title,
+//   link,
+//   type,
+//   contentId,
+//   refresh,
+//   isPublic,
+// }: CardProps) {
+//   const [summary, setSummary] = useState("");
+//   const [loading, setLoading] = useState(false);
+
+//   // Calls the backend DELETE route
+//   async function deleteContent() {
+//     if (isPublic) return; // Safety check
+//     try {
+//       await axios.delete(`${BACKEND_URL}/content`, {
+//         data: { contentId },
+//         headers: { Authorization: localStorage.getItem("token") },
+//       });
+//       if (refresh) refresh(); // Trigger dashboard re-render
+//     } catch (e) {
+//       alert("Delete failed");
+//     }
+//   }
+
+//   // Calls the Gemini 2.5 Flash summarization
+//   async function handleSummarize() {
+//     setLoading(true);
+//     try {
+//       const response = await axios.post(
+//         `${BACKEND_URL}/summarize`,
+//         { link },
+//         {
+//           headers: { Authorization: localStorage.getItem("token") },
+//         },
+//       );
+//       setSummary(response.data.summary);
+//     } catch (e) {
+//       setSummary("Could not generate summary.");
+//     }
+//     setLoading(false);
+//   }
+
+//   return (
+//     <div className="p-4 bg-white rounded-lg border-gray-200 border w-80 shadow-sm relative">
+//       <div className="flex justify-between items-center mb-4">
+//         <div className="flex items-center text-sm font-bold text-gray-700 capitalize">
+//           {title}
+//         </div>
+
+//         {/* 2. Hide TrashIcon if viewing publicly */}
+//         {!isPublic && (
+//           <div className="flex gap-2 text-gray-400">
+//             <div
+//               className="cursor-pointer hover:text-red-500 transition-colors"
+//               onClick={deleteContent}
+//             >
+//               <TrashIcon />
+//             </div>
+//           </div>
+//         )}
+//       </div>
+
+//       <div className="rounded-md overflow-hidden bg-gray-50 h-44 border">
+//         {type === "youtube" ? (
+//           <iframe
+//             className="w-full h-full"
+//             src={link.replace("watch?v=", "embed/").split("&")[0]}
+//             title="YouTube video player"
+//             allowFullScreen
+//           />
+//         ) : (
+//           <div className="w-full h-full overflow-y-auto">
+//             <blockquote className="twitter-tweet w-full">
+//               <a href={link.replace("x.com", "twitter.com")}></a>
+//             </blockquote>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* 3. Hide Summarize Section if viewing publicly */}
+//       {!isPublic && (
+//         <div className="mt-4 border-t pt-3">
+//           <button
+//             onClick={handleSummarize}
+//             disabled={loading}
+//             className="w-full text-xs bg-purple-100 text-purple-700 py-2 rounded-md font-medium hover:bg-purple-200 disabled:opacity-50"
+//           >
+//             {loading ? "Summarizing..." : "✨ Summarize with Gemini"}
+//           </button>
+//           {summary && (
+//             <div className="mt-2 p-2 bg-gray-50 rounded text-[10px] text-gray-600 italic leading-tight">
+//               {summary}
+//             </div>
+//           )}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { TrashIcon } from "./ui/icons/TrashIcon";
 
-// 1. Updated Interface with isPublic prop
 interface CardProps {
   title: string;
   link: string;
   type: "twitter" | "youtube";
-  contentId?: string; // Optional because public view doesn't need it
-  refresh?: () => void; // Optional because public view doesn't need it
-  isPublic?: boolean; // New prop to toggle UI elements
+  contentId?: string;
+  refresh?: () => void;
+  isPublic?: boolean;
+}
+
+// ─── YouTube Embed Parser ─────────────────────────────────────
+function getYouTubeEmbedUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+
+    if (urlObj.hostname === "youtu.be") {
+      return `https://www.youtube.com/embed/${urlObj.pathname.slice(1)}`;
+    }
+
+    const videoId = urlObj.searchParams.get("v");
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    if (urlObj.pathname.startsWith("/embed/")) {
+      return url;
+    }
+
+    const shortsMatch = urlObj.pathname.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
+    if (shortsMatch) {
+      return `https://www.youtube.com/embed/${shortsMatch[1]}`;
+    }
+
+    const liveMatch = urlObj.pathname.match(/\/live\/([a-zA-Z0-9_-]{11})/);
+    if (liveMatch) {
+      return `https://www.youtube.com/embed/${liveMatch[1]}`;
+    }
+
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+// ─── Twitter/X Embed Parser ───────────────────────────────────
+function getTwitterEmbedUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+
+    // Normalize domain: x.com, mobile.twitter.com → twitter.com
+    const cleanPath = urlObj.pathname;
+
+    // Extract tweet ID: /username/status/1234567890
+    const match = cleanPath.match(/\/status\/(\d+)/);
+    if (match) {
+      return `https://twitter.com${cleanPath}`;
+    }
+
+    // Already a twitter.com link with status
+    if (
+      urlObj.hostname.includes("twitter.com") &&
+      cleanPath.includes("/status/")
+    ) {
+      return url;
+    }
+
+    return url.replace("x.com", "twitter.com");
+  } catch {
+    return url.replace("x.com", "twitter.com");
+  }
 }
 
 export function Card({
@@ -143,21 +320,34 @@ export function Card({
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Calls the backend DELETE route
+  // Load Twitter widgets.js for embeds
+  useEffect(() => {
+    if (type === "twitter") {
+      const script = document.createElement("script");
+      script.src = "https://platform.twitter.com/widgets.js";
+      script.async = true;
+      script.charset = "utf-8";
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [type, link]);
+
   async function deleteContent() {
-    if (isPublic) return; // Safety check
+    if (isPublic) return;
     try {
       await axios.delete(`${BACKEND_URL}/content`, {
         data: { contentId },
         headers: { Authorization: localStorage.getItem("token") },
       });
-      if (refresh) refresh(); // Trigger dashboard re-render
+      if (refresh) refresh();
     } catch (e) {
       alert("Delete failed");
     }
   }
 
-  // Calls the Gemini 2.5 Flash summarization
   async function handleSummarize() {
     setLoading(true);
     try {
@@ -182,7 +372,6 @@ export function Card({
           {title}
         </div>
 
-        {/* 2. Hide TrashIcon if viewing publicly */}
         {!isPublic && (
           <div className="flex gap-2 text-gray-400">
             <div
@@ -199,20 +388,20 @@ export function Card({
         {type === "youtube" ? (
           <iframe
             className="w-full h-full"
-            src={link.replace("watch?v=", "embed/").split("&")[0]}
+            src={getYouTubeEmbedUrl(link)}
             title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         ) : (
-          <div className="w-full h-full overflow-y-auto">
+          <div className="w-full h-full overflow-y-auto p-2">
             <blockquote className="twitter-tweet w-full">
-              <a href={link.replace("x.com", "twitter.com")}></a>
+              <a href={getTwitterEmbedUrl(link)}></a>
             </blockquote>
           </div>
         )}
       </div>
 
-      {/* 3. Hide Summarize Section if viewing publicly */}
       {!isPublic && (
         <div className="mt-4 border-t pt-3">
           <button

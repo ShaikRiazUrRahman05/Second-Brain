@@ -249,37 +249,309 @@
 
 //@ts-ignore
 
+// import express from "express";
+// import jwt from "jsonwebtoken";
+// import mongoose from "mongoose";
+// import { ContentModel, LinkModel, UserModel } from "./db.js";
+// import { JWT_PASSWORD } from "./config.js";
+// import { userMiddleware } from "./middleware.js";
+// import { random } from "./utils.js";
+// import { summarizeContent } from "./gemini.js"; // Added import
+
+// interface DeleteContentParams {
+//   id?: string; // optional because you may also get it from req.body
+// }
+
+// import cors from "cors";
+
+// const app = express();
+// app.use(express.json());
+// //added this from GPT
+// app.use(express.urlencoded({ extended: true })); // optional but good
+// app.use(cors());
+
+// //express library u r creating then u have to write.d.ts
+
+// //signup endpoint
+// app.post("/api/v1/signup", async (req, res) => {
+//   const username = req.body.username;
+//   const password = req.body.password;
+//   try {
+//     await UserModel.create({
+//       username,
+//       password,
+//     });
+
+//     return res.json({
+//       message: "User Signedup successfully",
+//     });
+//   } catch (e) {
+//     console.error("Signup Error:", e);
+
+//     return res.status(500).json({
+//       message: "Signup failed",
+//       error: e,
+//     });
+//   }
+// });
+
+// //signin endpoint
+// app.post("/api/v1/signin", async (req, res) => {
+//   const username = req.body.username;
+//   const password = req.body.password;
+
+//   const existingUser = await UserModel.findOne({
+//     username,
+//     password,
+//   });
+
+//   if (existingUser) {
+//     const token = jwt.sign(
+//       {
+//         //has id encoded
+//         id: existingUser._id,
+//       },
+//       JWT_PASSWORD,
+//     );
+//     res.json({
+//       token,
+//     });
+//   } else {
+//     res.status(403).json({
+//       message: "Incorrect credentials",
+//     });
+//   }
+// });
+
+// //post content
+
+// app.post("/api/v1/content", userMiddleware, async (req, res) => {
+//   try {
+//     const link = req.body.link;
+//     const type = req.body.type;
+//     const title = req.body.title; // Included title from body
+
+//     if (!link || !type) {
+//       return res.status(400).json({ message: "Link and type are required" });
+//     }
+
+//     // create content
+//     const content = await ContentModel.create({
+//       link,
+//       type,
+//       title,
+//       //@ts-ignore
+//       userId: req.userId,
+//       tags: [],
+//     });
+
+//     return res.json({
+//       message: "Content added",
+//       content, // return the saved document for confirmation
+//     });
+//   } catch (err) {
+//     console.error("Error adding content:", err);
+//     return res.status(500).json({ message: "Failed to add content" });
+//   }
+// });
+
+// //get content
+// app.get("/api/v1/content", userMiddleware, async (req, res) => {
+//   try {
+//     //@ts-ignore
+
+//     const userId = req.userId;
+//     const content = await ContentModel.find({
+//       userId: userId,
+//     }).populate({
+//       path: "userId",
+//       model: "users",
+//       select: "username",
+//     });
+
+//     res.json({
+//       content,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       message: "Error fetching content",
+//       error: err,
+//     });
+//   }
+// });
+
+// // AI Summarization endpoint (New)
+// app.post("/api/v1/summarize", userMiddleware, async (req, res) => {
+//   try {
+//     const { link } = req.body;
+//     if (!link) {
+//       return res.status(400).json({ message: "Link is required" });
+//     }
+
+//     const summary = await summarizeContent(link);
+//     res.json({ summary });
+//   } catch (err) {
+//     res.status(500).json({ message: "AI Summarization failed" });
+//   }
+// });
+
+// //delete on content
+// app.delete("/api/v1/content", userMiddleware, async (req, res) => {
+//   try {
+//     //@ts-ignore
+//     const userId = req.userId;
+
+//     // Get contentId from URL param or request body
+//     const contentId = req.params.id || req.body.contentId;
+
+//     if (!contentId) {
+//       return res.status(400).json({ message: "Content ID is required" });
+//     }
+
+//     const result = await ContentModel.deleteOne({
+//       _id: contentId,
+//       userId: userId,
+//     });
+
+//     if (result.deletedCount === 0) {
+//       return res
+//         .status(404)
+//         .json({ message: "Content not found or not yours" });
+//     }
+
+//     res.json({ message: "Deleted successfully" });
+//   } catch (err) {
+//     res.status(500).json({ message: "Error deleting content", error: err });
+//   }
+// });
+
+// //share
+// app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
+//   const share = req.body.share;
+
+//   if (share) {
+//     const existingLink = await LinkModel.findOne({
+//       userId: req.userId,
+//     });
+
+//     if (existingLink) {
+//       return res.json({
+//         hash: existingLink.hash,
+//       });
+//     }
+
+//     const hash = random(10);
+//     await LinkModel.create({
+//       userId: req.userId,
+//       hash: hash,
+//     });
+//     res.json({
+//       message: hash,
+//     });
+//   } else {
+//     await LinkModel.deleteOne({
+//       userId: req.userId,
+//     });
+//     res.json({
+//       message: "Removed link",
+//     });
+//   }
+// });
+
+// //to get a specific shareable link
+
+// app.get("/api/v1/brain/:shareLink", async (req, res) => {
+//   const hash = req.params.shareLink; // Fixed to use params correctly
+
+//   const link = await LinkModel.findOne({ hash });
+
+//   if (!link) {
+//     return res.status(411).json({ message: "Invalid link" });
+//   }
+
+//   const content = await ContentModel.find({ userId: link.userId });
+//   const user = await UserModel.findOne({ _id: link.userId });
+
+//   res.json({
+//     username: user?.username,
+//     content: content,
+//   });
+// });
+
+// app.delete("/api/v1/content", userMiddleware, async (req, res) => {
+//   const contentId = req.body.contentId;
+
+//   await ContentModel.deleteMany({
+//     _id: contentId,
+//     userId: req.userId, // Security: prevents deleting others' data
+//   });
+
+//   res.json({
+//     message: "Deleted successfully",
+//   });
+// });
+
+// app.listen(3000, () => {
+//   console.log("🚀 Server running on http://localhost:3000");
+// });
+
 import express from "express";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { ContentModel, LinkModel, UserModel } from "./db.js";
 import { JWT_PASSWORD } from "./config.js";
 import { userMiddleware } from "./middleware.js";
 import { random } from "./utils.js";
-import { summarizeContent } from "./gemini.js"; // Added import
+import { summarizeContent } from "./gemini.js";
 
 interface DeleteContentParams {
-  id?: string; // optional because you may also get it from req.body
+  id?: string;
 }
 
 import cors from "cors";
 
 const app = express();
 app.use(express.json());
-//added this from GPT
-app.use(express.urlencoded({ extended: true })); // optional but good
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-//express library u r creating then u have to write.d.ts
+// ─── Zod Schemas ────────────────────────────────────────────────
+const signupSchema = z.object({
+  username: z.string().min(3).max(30),
+  email: z.string().email(),
+  password: z.string().min(6),
+});
 
-//signup endpoint
+const signinSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+// ─── SIGNUP ─────────────────────────────────────────────────────
 app.post("/api/v1/signup", async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+  const parsed = signupSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      message: "Invalid input",
+      errors: parsed.error.issues,
+    });
+  }
+
+  const { username, email, password } = parsed.data;
+
   try {
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already registered" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     await UserModel.create({
       username,
-      password,
+      email,
+      password: hashedPassword,
     });
 
     return res.json({
@@ -287,7 +559,6 @@ app.post("/api/v1/signup", async (req, res) => {
     });
   } catch (e) {
     console.error("Signup Error:", e);
-
     return res.status(500).json({
       message: "Signup failed",
       error: e,
@@ -295,47 +566,54 @@ app.post("/api/v1/signup", async (req, res) => {
   }
 });
 
-//signin endpoint
+// ─── SIGNIN (EMAIL ONLY) ────────────────────────────────────────
 app.post("/api/v1/signin", async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+  const parsed = signinSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
 
-  const existingUser = await UserModel.findOne({
-    username,
-    password,
-  });
+  const { email, password } = parsed.data;
 
-  if (existingUser) {
-    const token = jwt.sign(
-      {
-        //has id encoded
-        id: existingUser._id,
-      },
-      JWT_PASSWORD,
-    );
-    res.json({
-      token,
-    });
-  } else {
-    res.status(403).json({
+  const existingUser = await UserModel.findOne({ email });
+
+  if (!existingUser) {
+    return res.status(403).json({
       message: "Incorrect credentials",
     });
   }
+
+  const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+  if (!isPasswordValid) {
+    return res.status(403).json({
+      message: "Incorrect credentials",
+    });
+  }
+
+  const token = jwt.sign(
+    {
+      id: existingUser._id,
+    },
+    JWT_PASSWORD,
+    { expiresIn: "7d" },
+  );
+
+  res.json({
+    token,
+  });
 });
 
-//post content
-
+// ─── POST CONTENT ─────────────────────────────────────────────
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
   try {
     const link = req.body.link;
     const type = req.body.type;
-    const title = req.body.title; // Included title from body
+    const title = req.body.title;
 
     if (!link || !type) {
       return res.status(400).json({ message: "Link and type are required" });
     }
 
-    // create content
     const content = await ContentModel.create({
       link,
       type,
@@ -347,7 +625,7 @@ app.post("/api/v1/content", userMiddleware, async (req, res) => {
 
     return res.json({
       message: "Content added",
-      content, // return the saved document for confirmation
+      content,
     });
   } catch (err) {
     console.error("Error adding content:", err);
@@ -355,18 +633,17 @@ app.post("/api/v1/content", userMiddleware, async (req, res) => {
   }
 });
 
-//get content
+// ─── GET CONTENT ────────────────────────────────────────────────
 app.get("/api/v1/content", userMiddleware, async (req, res) => {
   try {
     //@ts-ignore
-
     const userId = req.userId;
     const content = await ContentModel.find({
       userId: userId,
     }).populate({
       path: "userId",
       model: "users",
-      select: "username",
+      select: "username email",
     });
 
     res.json({
@@ -380,7 +657,7 @@ app.get("/api/v1/content", userMiddleware, async (req, res) => {
   }
 });
 
-// AI Summarization endpoint (New)
+// ─── AI SUMMARIZE ─────────────────────────────────────────────
 app.post("/api/v1/summarize", userMiddleware, async (req, res) => {
   try {
     const { link } = req.body;
@@ -395,13 +672,11 @@ app.post("/api/v1/summarize", userMiddleware, async (req, res) => {
   }
 });
 
-//delete on content
+// ─── DELETE CONTENT ───────────────────────────────────────────
 app.delete("/api/v1/content", userMiddleware, async (req, res) => {
   try {
     //@ts-ignore
     const userId = req.userId;
-
-    // Get contentId from URL param or request body
     const contentId = req.params.id || req.body.contentId;
 
     if (!contentId) {
@@ -425,7 +700,7 @@ app.delete("/api/v1/content", userMiddleware, async (req, res) => {
   }
 });
 
-//share
+// ─── SHARE ──────────────────────────────────────────────────────
 app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
   const share = req.body.share;
 
@@ -458,10 +733,9 @@ app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
   }
 });
 
-//to get a specific shareable link
-
+// ─── PUBLIC SHARE ─────────────────────────────────────────────
 app.get("/api/v1/brain/:shareLink", async (req, res) => {
-  const hash = req.params.shareLink; // Fixed to use params correctly
+  const hash = req.params.shareLink;
 
   const link = await LinkModel.findOne({ hash });
 
@@ -475,19 +749,6 @@ app.get("/api/v1/brain/:shareLink", async (req, res) => {
   res.json({
     username: user?.username,
     content: content,
-  });
-});
-
-app.delete("/api/v1/content", userMiddleware, async (req, res) => {
-  const contentId = req.body.contentId;
-
-  await ContentModel.deleteMany({
-    _id: contentId,
-    userId: req.userId, // Security: prevents deleting others' data
-  });
-
-  res.json({
-    message: "Deleted successfully",
   });
 });
 
